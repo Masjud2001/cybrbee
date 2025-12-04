@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CybrBee SOC – Glass Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- chart lib -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #0d0f18;
+      --glass: rgba(255, 255, 255, 0.04);
+      --blur: 12px;
+      --radius: 16px;
+      font-family: "Inter", system-ui, sans-serif;
+      color: #e5e7eb;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: var(--bg);
+      padding: 2rem;
+    }
+    .dashboard {
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      gap: 1.5rem;
+    }
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.8rem;
+    }
+    header {
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2.2rem;
+      margin: 0.2rem 0;
+    }
+    header .sub {
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      gap: 1rem;
+    }
+    .stat-box .label {
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+    .stat-box .value {
+      font-size: 2rem;
+      font-weight: 600;
+      display: block;
+      margin-top: 0.2rem;
+    }
+    .chart-box {
+      height: 180px;
+    }
+    .alerts {
+      display: grid;
+      gap: 0.8rem;
+    }
+    .alert-card {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .alert-card .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .alert-card .meta {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.85rem;
+    }
+    .alert-card p {
+      margin: 0;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dashboard">
+    <!-- header -->
+    <header class="glass">
+      <h1>CybrBee SOC</h1>
+      <p class="sub">24×7 U.S.-based threat shield</p>
+    </header>
+
+    <!-- stats -->
+    <section class="stats glass">
+      <div class="stat-box">
+        <span class="label">Active Incidents</span>
+        <span class="value" id="active">—</span>
+      </div>
+      <div class="stat-box">
+        <span class="label">Resolved Today</span>
+        <span class="value" id="resolved">—</span>
+      </div>
+      <div class="stat-box">
+        <span class="label">Threat Score</span>
+        <span class="value" id="score">—</span>
+      </div>
+    </section>
+
+    <!-- chart -->
+    <section class="glass chart-box">
+      <canvas id="threatChart"></canvas>
+    </section>
+
+    <!-- alerts -->
+    <section class="alerts" id="alerts"></section>
+  </div>
+
+  <script>
+    /* ---------- dummy data ---------- */
+    const dummyAlerts = Array.from({ length: 6 }, (_, i) => ({
+      id: i,
+      severity: ["low", "medium", "high"][i % 3],
+      title: ["Suspicious login", "Malware hash", "Phishing email"][i % 3],
+      body: "Lorem
