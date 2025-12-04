@@ -2,158 +2,166 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>CybrBee SOC – Glass Dashboard</title>
+  <title>CybrBee SOC – Apple Style Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- chart lib -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <!-- google font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Apple-style font -->
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #0d0f18;
-      --glass: rgba(255, 255, 255, 0.04);
-      --blur: 12px;
-      --radius: 16px;
-      font-family: "Inter", system-ui, sans-serif;
-      color: #e5e7eb;
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --radius: 18px;
+      --border: #e5e5e7;
+      --text: #1d1d1f;
+      font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+
     body {
       background: var(--bg);
+      margin: 0;
       padding: 2rem;
+      color: var(--text);
     }
+
     .dashboard {
       max-width: 1200px;
       margin: auto;
       display: grid;
       gap: 1.5rem;
     }
-    .glass {
-      background: var(--glass);
-      backdrop-filter: blur(var(--blur));
-      -webkit-backdrop-filter: blur(var(--blur));
-      border: 1px solid rgba(255, 255, 255, 0.08);
+
+    .card {
+      background: var(--card);
       border-radius: var(--radius);
-      padding: 1.2rem 1.8rem;
+      padding: 1.6rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
+
     header {
       text-align: center;
+      padding: 2.5rem 1rem;
     }
+
     header h1 {
-      font-size: 2.2rem;
-      margin: 0.2rem 0;
+      font-size: 2.5rem;
+      font-weight: 600;
     }
+
     header .sub {
-      font-size: 0.9rem;
-      opacity: 0.6;
+      font-size: 1rem;
+      opacity: 0.5;
+      margin-top: .3rem;
     }
+
     .stats {
       display: flex;
       justify-content: space-around;
       text-align: center;
       gap: 1rem;
     }
-    .stat-box .label {
-      font-size: 0.75rem;
-      opacity: 0.6;
+
+    .stat .label {
+      font-size: .9rem;
+      opacity: .55;
     }
-    .stat-box .value {
-      font-size: 2rem;
+
+    .stat .value {
+      font-size: 2.3rem;
       font-weight: 600;
-      display: block;
-      margin-top: 0.2rem;
+      margin-top: .2rem;
     }
+
     .chart-box {
-      height: 180px;
+      height: 200px;
     }
+
     .alerts {
       display: grid;
-      gap: 0.8rem;
+      gap: 1rem;
     }
+
     .alert-card {
       display: flex;
       align-items: center;
-      gap: 0.8rem;
+      gap: 1rem;
     }
+
     .alert-card .dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
     }
-    .alert-card .meta {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.85rem;
+
+    .alert-card strong {
+      font-size: .95rem;
     }
+
+    .alert-card small {
+      opacity: .55;
+    }
+
     .alert-card p {
-      margin: 0;
-      font-size: 0.8rem;
-      opacity: 0.7;
+      opacity: .65;
+      margin: .2rem 0 0;
+      font-size: .85rem;
     }
   </style>
 </head>
 
 <body>
   <div class="dashboard">
-    <!-- header -->
-    <header class="glass">
+
+    <header class="card">
       <h1>CybrBee SOC</h1>
-      <p class="sub">24×7 U.S.-based threat shield</p>
+      <p class="sub">Modern 24×7 Threat Intelligence Platform</p>
     </header>
 
-    <!-- stats -->
-    <section class="stats glass">
-      <div class="stat-box">
+    <section class="stats card">
+      <div class="stat">
         <span class="label">Active Incidents</span>
-        <span class="value" id="active">—</span>
+        <div class="value" id="active">—</div>
       </div>
-      <div class="stat-box">
+      <div class="stat">
         <span class="label">Resolved Today</span>
-        <span class="value" id="resolved">—</span>
+        <div class="value" id="resolved">—</div>
       </div>
-      <div class="stat-box">
+      <div class="stat">
         <span class="label">Threat Score</span>
-        <span class="value" id="score">—</span>
+        <div class="value" id="score">—</div>
       </div>
     </section>
 
-    <!-- chart -->
-    <section class="glass chart-box">
+    <section class="card chart-box">
       <canvas id="threatChart"></canvas>
     </section>
 
-    <!-- alerts -->
-    <section class="alerts" id="alerts"></section>
+    <section class="alerts card" id="alerts"></section>
   </div>
 
   <script>
-    /* ---------- dummy data ---------- */
     const dummyAlerts = Array.from({ length: 6 }, (_, i) => ({
       id: i,
       severity: ["low", "medium", "high"][i % 3],
-      title: ["Suspicious login", "Malware hash", "Phishing email"][i % 3],
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      time: Date.now() - i * 6e4,
+      title: ["Suspicious Login", "Malware Hash", "Phishing Email"][i % 3],
+      body: "Detected unusual activity requiring review.",
+      time: Date.now() - i * 60_000,
     }));
 
     const history = Array.from({ length: 24 }, (_, i) => ({
-      t: new Date(Date.now() - i * 36e5).toLocaleTimeString([], { hour: "2-digit" }),
+      t: new Date(Date.now() - i * 3600_000).toLocaleTimeString([], { hour: "2-digit" }),
       v: Math.floor(Math.random() * 30 + 10),
     })).reverse();
 
-    /* ---------- render stats ---------- */
     document.getElementById("active").textContent = 3;
     document.getElementById("resolved").textContent = 12;
     document.getElementById("score").textContent = 42;
 
-    /* ---------- render chart ---------- */
     const ctx = document.getElementById("threatChart");
     new Chart(ctx, {
       type: "line",
@@ -161,11 +169,11 @@
         labels: history.map((h) => h.t),
         datasets: [
           {
-            label: "Threats / hr",
+            label: "Threats per Hour",
             data: history.map((h) => h.v),
-            borderColor: "#00d4ff",
-            backgroundColor: "rgba(0, 212, 255, 0.15)",
-            tension: 0.4,
+            borderColor: "#0071e3",
+            backgroundColor: "rgba(0,113,227,0.15)",
+            tension: 0.35,
             fill: true,
             pointRadius: 0,
           },
@@ -176,25 +184,25 @@
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { ticks: { color: "#aaa" }, grid: { display: false } },
-          y: { ticks: { color: "#aaa" }, grid: { color: "rgba(255,255,255,.05)" } },
+          x: { ticks: { color: "#555" }, grid: { display: false } },
+          y: { ticks: { color: "#555" }, grid: { color: "#eee" } },
         },
       },
     });
 
-    /* ---------- render alerts ---------- */
-    const color = { low: "#00d4ff", medium: "#ffb800", high: "#ff4d4d" };
+    const colors = { low: "#0071e3", medium: "#ffb600", high: "#ff3b30" };
     const box = document.getElementById("alerts");
+
     dummyAlerts.forEach((a) => {
       const card = document.createElement("div");
-      card.className = "alert-card glass";
+      card.className = "alert-card";
       card.innerHTML = `
-        <div class="dot" style="background:${color[a.severity]}"></div>
-        <div class="meta">
-          <strong>${a.title}</strong>
-          <span>${new Date(a.time).toLocaleTimeString()}</span>
+        <div class="dot" style="background:${colors[a.severity]}"></div>
+        <div>
+          <strong>${a.title}</strong><br>
+          <small>${new Date(a.time).toLocaleTimeString()}</small>
+          <p>${a.body}</p>
         </div>
-        <p>${a.body}</p>
       `;
       box.appendChild(card);
     });
