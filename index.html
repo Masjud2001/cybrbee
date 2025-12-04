@@ -139,4 +139,65 @@
       id: i,
       severity: ["low", "medium", "high"][i % 3],
       title: ["Suspicious login", "Malware hash", "Phishing email"][i % 3],
-      body: "Lorem
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      time: Date.now() - i * 6e4,
+    }));
+
+    const history = Array.from({ length: 24 }, (_, i) => ({
+      t: new Date(Date.now() - i * 36e5).toLocaleTimeString([], { hour: "2-digit" }),
+      v: Math.floor(Math.random() * 30 + 10),
+    })).reverse();
+
+    /* ---------- render stats ---------- */
+    document.getElementById("active").textContent = 3;
+    document.getElementById("resolved").textContent = 12;
+    document.getElementById("score").textContent = 42;
+
+    /* ---------- render chart ---------- */
+    const ctx = document.getElementById("threatChart");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: history.map((h) => h.t),
+        datasets: [
+          {
+            label: "Threats / hr",
+            data: history.map((h) => h.v),
+            borderColor: "#00d4ff",
+            backgroundColor: "rgba(0, 212, 255, 0.15)",
+            tension: 0.4,
+            fill: true,
+            pointRadius: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#aaa" }, grid: { display: false } },
+          y: { ticks: { color: "#aaa" }, grid: { color: "rgba(255,255,255,.05)" } },
+        },
+      },
+    });
+
+    /* ---------- render alerts ---------- */
+    const color = { low: "#00d4ff", medium: "#ffb800", high: "#ff4d4d" };
+    const box = document.getElementById("alerts");
+    dummyAlerts.forEach((a) => {
+      const card = document.createElement("div");
+      card.className = "alert-card glass";
+      card.innerHTML = `
+        <div class="dot" style="background:${color[a.severity]}"></div>
+        <div class="meta">
+          <strong>${a.title}</strong>
+          <span>${new Date(a.time).toLocaleTimeString()}</span>
+        </div>
+        <p>${a.body}</p>
+      `;
+      box.appendChild(card);
+    });
+  </script>
+</body>
+</html>
